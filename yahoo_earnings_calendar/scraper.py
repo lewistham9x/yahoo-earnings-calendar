@@ -31,16 +31,16 @@ class YahooEarningsCalendar(object):
     def __init__(self, delay=SLEEP_BETWEEN_REQUESTS_S):
         self.delay = delay
 
-    def _get_data_dict(self, url):
+    def _get_data_dict(self, url, proxies):
         time.sleep(self.delay)
-        page = requests.get(url)
+        page = requests.get(url, proxies=proxies)
         page_content = page.content.decode(encoding='utf-8', errors='strict')
         page_data_string = [row for row in page_content.split(
             '\n') if row.startswith('root.App.main = ')][0][:-1]
         page_data_string = page_data_string.split('root.App.main = ', 1)[1]
         return json.loads(page_data_string)
 
-    def get_next_earnings_date(self, symbol):
+    def get_next_earnings_date(self, symbol, proxies=[]):
         """Gets the next earnings date of symbol
         Args:
             symbol: A ticker symbol
@@ -51,12 +51,12 @@ class YahooEarningsCalendar(object):
         """
         url = '{0}/{1}'.format(BASE_STOCK_URL, symbol)
         try:
-            page_data_dict = self._get_data_dict(url)
+            page_data_dict = self._get_data_dict(url,proxies=proxies)
             return page_data_dict['context']['dispatcher']['stores']['QuoteSummaryStore']['calendarEvents']['earnings']['earningsDate'][0]['raw']
         except:
             raise Exception('Invalid Symbol or Unavailable Earnings Date')
 
-    def earnings_on(self, date, offset=0, count=1):
+    def earnings_on(self, date, offset=0, count=1, proxies=[]):
         """Gets earnings calendar data from Yahoo! on a specific date.
         Args:
             date: A datetime.date instance representing the date of earnings data to be fetched.
@@ -90,7 +90,7 @@ class YahooEarningsCalendar(object):
         logger.debug('Fetching earnings data for %s', date_str)
         dated_url = '{0}?day={1}&offset={2}&size={3}'.format(
             BASE_URL, date_str, offset, OFFSET_STEP)
-        page_data_dict = self._get_data_dict(dated_url)
+        page_data_dict = self._get_data_dict(dated_url,proxies=proxies)
         stores_dict = page_data_dict['context']['dispatcher']['stores']
         earnings_count = stores_dict['ScreenerCriteriaStore']['meta']['total']
 
@@ -140,7 +140,7 @@ class YahooEarningsCalendar(object):
             current_date += delta
         return earnings_data
 
-    def get_earnings_of(self, symbol):
+    def get_earnings_of(self, symbol, proxies=[][]):
         """Returns all the earnings dates of a symbol
         Args:
             symbol: A ticker symbol
@@ -151,7 +151,7 @@ class YahooEarningsCalendar(object):
         """
         url = 'https://finance.yahoo.com/calendar/earnings?symbol={0}'.format(symbol)
         try: 
-            page_data_dict = self._get_data_dict(url)
+            page_data_dict = self._get_data_dict(url,proxies=proxies)
             return page_data_dict["context"]["dispatcher"]["stores"]["ScreenerResultsStore"]["results"]["rows"]
         except: 
             raise Exception('Invalid Symbol or Unavailable Earnings Date')
