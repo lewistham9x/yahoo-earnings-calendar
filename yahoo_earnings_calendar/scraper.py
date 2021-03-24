@@ -140,7 +140,7 @@ class YahooEarningsCalendar(object):
             current_date += delta
         return earnings_data
 
-    def get_earnings_of(self, symbol, proxies=[][]):
+    def get_earnings_of(self, symbol, proxies=[]):
         """Returns all the earnings dates of a symbol
         Args:
             symbol: A ticker symbol
