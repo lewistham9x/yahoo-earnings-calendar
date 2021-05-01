@@ -40,7 +40,7 @@ class YahooEarningsCalendar(object):
         page_data_string = page_data_string.split('root.App.main = ', 1)[1]
         return json.loads(page_data_string)
 
-    def get_next_earnings_date(self, symbol, proxies=[]):
+    def get_next_earnings_date(self, symbol, proxies={}):
         """Gets the next earnings date of symbol
         Args:
             symbol: A ticker symbol
@@ -56,7 +56,7 @@ class YahooEarningsCalendar(object):
         except:
             raise Exception('Invalid Symbol or Unavailable Earnings Date')
 
-    def earnings_on(self, date, offset=0, count=1, proxies=[]):
+    def earnings_on(self, date, offset=0, count=1, proxies={}):
         """Gets earnings calendar data from Yahoo! on a specific date.
         Args:
             date: A datetime.date instance representing the date of earnings data to be fetched.
@@ -96,12 +96,12 @@ class YahooEarningsCalendar(object):
 
         # Recursively fetch more earnings on this date
         new_offset = offset + OFFSET_STEP
-        more_earnings = self.earnings_on(date, new_offset, earnings_count)
+        more_earnings = self.earnings_on(date, new_offset, earnings_count, proxies={})
         curr_offset_earnings = stores_dict['ScreenerResultsStore']['results']['rows']
 
         return curr_offset_earnings + more_earnings
 
-    def earnings_between(self, from_date, to_date):
+    def earnings_between(self, from_date, to_date, proxies={}):
         """Gets earnings calendar data from Yahoo! in a date range.
         Args:
             from_date: A datetime.date instance representing the from-date (inclusive).
@@ -136,11 +136,11 @@ class YahooEarningsCalendar(object):
         current_date = from_date
         delta = datetime.timedelta(days=1)
         while current_date <= to_date:
-            earnings_data += self.earnings_on(current_date)
+            earnings_data += self.earnings_on(current_date, proxies=proxies)
             current_date += delta
         return earnings_data
 
-    def get_earnings_of(self, symbol, proxies=[]):
+    def get_earnings_of(self, symbol, proxies={}):
         """Returns all the earnings dates of a symbol
         Args:
             symbol: A ticker symbol
