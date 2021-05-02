@@ -28,12 +28,13 @@ class YahooEarningsCalendar(object):
     This is the class for fetching earnings data from Yahoo! Finance
     """
 
-    def __init__(self, delay=SLEEP_BETWEEN_REQUESTS_S):
+    def __init__(self, delay=SLEEP_BETWEEN_REQUESTS_S, timeout=(2,5)):
         self.delay = delay
+        self.timeout = timeout
 
     def _get_data_dict(self, url, proxies):
         time.sleep(self.delay)
-        page = requests.get(url, proxies=proxies)
+        page = requests.get(url, proxies=proxies,timeout=self.timeout)
         page_content = page.content.decode(encoding='utf-8', errors='strict')
         page_data_string = [row for row in page_content.split(
             '\n') if row.startswith('root.App.main = ')][0][:-1]
