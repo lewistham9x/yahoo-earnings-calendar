@@ -34,7 +34,8 @@ class YahooEarningsCalendar(object):
 
     def _get_data_dict(self, url, proxies):
         time.sleep(self.delay)
-        page = requests.get(url, proxies=proxies,timeout=self.timeout)
+        USER_AGENT = { 'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36') }
+        page = requests.get(url, proxies=proxies,timeout=self.timeout, headers=USER_AGENT)
         page_content = page.content.decode(encoding='utf-8', errors='strict')
         page_data_string = [row for row in page_content.split(
             '\n') if row.startswith('root.App.main = ')][0][:-1]
